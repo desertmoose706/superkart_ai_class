@@ -1,4 +1,5 @@
-import json
+import hmac
+import os
 from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
@@ -6,8 +7,21 @@ import pandas as pd
 # Initialize the Flask application
 superkart_api = Flask(__name__)
 
+# API key is supplied at runtime through the environment (never hard-coded)
+API_KEY = os.environ.get('API_KEY')
+if not API_KEY:
+    raise RuntimeError("API_KEY environment variable is not set")
+
 # Load the serialized machine learning model
 model = joblib.load('superkart_model.joblib')
+
+
+@superkart_api.before_request
+def require_api_key():
+    # Reject any request that does not carry the correct X-API-Key header
+    provided = request.headers.get('X-API-Key', '')
+    if not hmac.compare_digest(provided.encode(), API_KEY.encode()):
+        return jsonify({"error": "Unauthorized"}), 401
 
 @superkart_api.route('/v1/predict', methods=['POST'])
 def predict():
