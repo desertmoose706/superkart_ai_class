@@ -23,6 +23,11 @@ def require_api_key():
     if not hmac.compare_digest(provided.encode(), API_KEY.encode()):
         return jsonify({"error": "Unauthorized"}), 401
 
+def missing_columns(df):
+    # Columns the trained pipeline needs that the request did not provide
+    return [c for c in model.feature_names_in_ if c not in df.columns]
+
+
 @superkart_api.route('/v1/predict', methods=['POST'])
 def predict():
     # Get the JSON data from the request
@@ -30,6 +35,10 @@ def predict():
     
     # Convert the JSON payload into a pandas DataFrame
     df = pd.DataFrame([data])
+
+    missing = missing_columns(df)
+    if missing:
+        return jsonify({"error": "Missing columns", "missing": missing}), 400
     
     # Generate a prediction
     prediction = model.predict(df)
@@ -47,6 +56,10 @@ def predictbatch():
     
     # Read the uploaded CSV file into a pandas DataFrame
     df = pd.read_csv(file)
+
+    missing = missing_columns(df)
+    if missing:
+        return jsonify({"error": "Missing columns", "missing": missing}), 400
     
     # Generate predictions for the entire batch
     predictions = model.predict(df)

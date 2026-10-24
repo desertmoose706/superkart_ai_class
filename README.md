@@ -85,12 +85,13 @@ Predicts sales for a single record. Send JSON with **all** of the fields below.
 | `Product_Weight` | number |
 | `Product_Sugar_Content` | string (`Low Sugar`, `No Sugar`, `Regular`) |
 | `Product_Allocated_Area` | number |
-| `Product_Type` | string (`Baking Goods`, `Breads`, `Breakfast`, `Canned`, `Dairy`, `Frozen Foods`, `Fruits and Vegetables`, `Hard Drinks`, `Health and Hygiene`, `Household`, `Meat`, `Others`, `Seafood`, `Snack Foods`, `Soft Drinks`, `Starchy Foods`) |
 | `Product_MRP` | number |
-| `Store_Establishment_Year` | integer |
 | `Store_Size` | string (`Small`, `Medium`, `High`) |
 | `Store_Location_City_Type` | string (`Tier 1`, `Tier 2`, `Tier 3`) |
 | `Store_Type` | string (`Supermarket Type1`, `Supermarket Type2`, `Food Mart`, `Departmental Store`) |
+| `Product_Id_char` | string (`FD`, `DR`, `NC`) |
+| `Store_Age_Years` | integer |
+| `Product_Type_Category` | string (`Perishables`, `Non Perishables`) |
 
 ```bash
 curl -X POST http://localhost:7860/v1/predict \
@@ -100,12 +101,13 @@ curl -X POST http://localhost:7860/v1/predict \
     "Product_Weight": 12.66,
     "Product_Sugar_Content": "Low Sugar",
     "Product_Allocated_Area": 0.027,
-    "Product_Type": "Dairy",
     "Product_MRP": 117.08,
-    "Store_Establishment_Year": 2009,
     "Store_Size": "Medium",
     "Store_Location_City_Type": "Tier 2",
-    "Store_Type": "Supermarket Type2"
+    "Store_Type": "Supermarket Type2",
+    "Product_Id_char": "FD",
+    "Store_Age_Years": 16,
+    "Product_Type_Category": "Perishables"
   }'
 ```
 
@@ -129,7 +131,7 @@ Response: a JSON object keyed by row index.
 {"0": 1234.56, "1": 987.65}
 ```
 
-A request without the correct key returns `401 {"error": "Unauthorized"}`. A request without a `file` field returns `400 {"error": "No file uploaded"}`.
+A request missing any required column returns `400` with the list of missing columns. A request without the correct key returns `401 {"error": "Unauthorized"}`. A request without a `file` field returns `400 {"error": "No file uploaded"}`.
 
 ## Configuration
 
